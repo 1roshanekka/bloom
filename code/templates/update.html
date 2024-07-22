@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}
+    DataBase
+{% endblock title %}
+{% block body %}
+    <h2>Influencer Update</h2>
+    <div class="container">
+        <form action="/update/{{update_instance.bloom_data_id}}" method="POST">
+            <div class="mb-3">
+                <label for="name" class="form-label">Email</label>
+                <input type="text" class="form-control" value="{{ update_bloom.email }}" id="name" name="name" required>
+            </div>
+            <div class="mb-3">
+                <label for="name" class="form-label">Password</label>
+                <input type="text" class="form-control" value="{{ update_bloom.password }}" id="name" name="name" required>
+            </div>
+        
+        
+            {% if update_bloom.role == 'Influencer' %}
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name</label>
+                    <input type="text" class="form-control" value="{{update_instance.name}}" id="name" name="name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="category" class="form-label">Category</label>
+                    <input type="text" class="form-control" value="{{update_instance.category}}" id="category" name="category" required>
+                </div>
+            
+                <div class="mb-3">
+                    <label for="niche" class="form-label">Niche</label>
+                    <input type="text" class="form-control" id="niche" value="{{update_instance.niche}}" name="niche" required>
+                </div>
+            
+                <div class="mb-3">
+                    <label for="reach" class="form-label">Reach</label>
+                    <input type="text" class="form-control" id="reach" value="{{update_instance.reach}}" name="reach" required>
+                </div>
+            {% elif update_bloom.role == 'Sponsor' %}
+                <input type="text" name="company_name" value="{{ update_instance.company_name }}" required>
+                <input type="text" name="industry" value="{{ update_instance.industry }}" required>
+                <input type="text" name="budget" value="{{ update_instance.budget }}" required>
+            {% endif %}
+        
+            <button type="submit">Update</button>
+        </form>
+        
+    </div>
+<script>
+    function redirectTo(url) {
+        window.location.href = url;
+    }
+</script>
+{% endblock body %}

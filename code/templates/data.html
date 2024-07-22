@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}
+    DataBase
+{% endblock title %}
+{% block body %}DataBase
+        <div class="container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Password</th>
+                        <th scope="col">Role</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                {% for entries in data %}
+                <tr>
+                    <td>{{ entries.id }}</td>
+                    <td>{{ entries.email }}</td>
+                    <td>{{ entries.password }}</td>
+                    <td>{{ entries.role }}</td>
+                    <td>
+                        <a href="/delete/{{entries.id}}", type="button", class="btn btn-dark btn-sm">Delete</a>
+                        <a href="/update/{{entries.id}}", type="button", class="btn btn-dark btn-sm">Update</a>
+                    </td>
+                </tr>
+                {% endfor %}
+
+            </table>
+        </div>
+<script>
+    function redirectTo(url) {
+        window.location.href = url;
+    }
+</script>
+{% endblock body %}
