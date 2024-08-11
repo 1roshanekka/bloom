@@ -38,10 +38,13 @@
                             <a class="nav-link" href="{{ url_for('add_campaigns') }}">Campaigns</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('find_influencers') }}">Find</a>
+                            <a class="nav-link" href="{{ url_for('sponsor_find_influencers') }}">Find</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Stats</a>
+                            <a class="nav-link" href="{{ url_for('open_ad_request') }}">Ad Request</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('view_ad_request') }}">Existing Ad Request</a>
                         </li>
                     </ul>
                     Welcome {{sdata.company_name}} 
@@ -60,7 +63,89 @@
     function redirectToNewPage() {
         window.location.href = "{{ url_for('login') }}"; // Replace with your desired URL
     }
+    
 </script>
+
+<!-- Add CSS styles -->
+<style>
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    .form-group select,
+    .form-group textarea,
+    .form-group input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    .form-group textarea {
+        height: 100px;
+        resize: vertical;
+    }
+
+    .submit-button,
+    .update-button {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    .submit-button:hover,
+    .update-button:hover {
+        background-color: #0056b3;
+    }
+
+    .table-container {
+        max-width: 1000px;
+        margin: 20px auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 10px 0;
+    }
+
+    table, th, td {
+        border: 1px solid #ddd;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f4f4f4;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+</style>
 
 </body>
 

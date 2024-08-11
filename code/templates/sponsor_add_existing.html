@@ -1,0 +1,29 @@
+{% extends 'sponsor.html' %}
+
+{% block title %}
+    View Ad Requests - {{ sdata.company_name }}
+{% endblock title %}
+
+{% block body %}
+<h1>Ad Requests</h1>
+
+<div class="ad-requests-container">
+    {% if ad_requests %}
+        <ul>
+            {% for request in ad_requests %}
+                <li>
+                    <strong>Campaign:</strong> {{ request.campaign.title }}<br>
+                    <strong>Influencer:</strong> {{ request.influencer.name }}<br>
+                    <strong>Messages:</strong> {{ request.messages }}<br>
+                    <strong>Requirements:</strong> {{ request.requirements }}<br>
+                    <strong>Payment Amount:</strong> {{ request.payment_amount }}<br>
+                    <strong>Status:</strong> {{ request.status }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No ad requests found.</p>
+    {% endif %}
+</div>
+
+{% endblock body %}

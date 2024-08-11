@@ -54,6 +54,7 @@ class influencerData(db.Model):
     category = db.Column(db.String(30), nullable=False)
     niche = db.Column(db.String(30), nullable=False)
     reach = db.Column(db.String(30), nullable=False)
+    flagged = db.Column(db.Boolean, default=False)
 
 
     bloomdata = db.relationship("BloomData", uselist=False, back_populates='influencer_data')
@@ -66,6 +67,7 @@ class sponsorData(db.Model):
     company_name = db.Column(db.String(30), nullable=False)
     industry = db.Column(db.String(30), nullable=False)
     budget = db.Column(db.String(30), nullable=False)
+    flagged = db.Column(db.Boolean, default=False)
 
     bloomdata = db.relationship("BloomData", uselist=False, back_populates='sponsor_data')
 
@@ -93,6 +95,107 @@ class CampaignRequest(db.Model):
     __table_args__ = (
         db.UniqueConstraint('campaign_id', 'influencer_id', name='unique_campaign_influencer'),
     )
+class AdRequest(db.Model):
+    __tablename__ = 'ad_requests'
+    id = db.Column(db.Integer, primary_key=True)
+    campaign_id = db.Column(db.Integer, db.ForeignKey('campaigns.id'), nullable=False)
+    influencer_id = db.Column(db.Integer, db.ForeignKey('influencer_data.bloom_data_id'), nullable=False)
+    messages = db.Column(db.Text, nullable=False)
+    requirements = db.Column(db.Text, nullable=False)
+    payment_amount = db.Column(db.Float, nullable=False)
+    status = db.Column(db.String(20), default='Pending')  # Could be Pending, Accepted, Rejected
+
+    campaign = db.relationship('campaign', backref=db.backref('ad_requests', lazy=True))
+    influencer = db.relationship('influencerData', backref=db.backref('ad_requests', lazy=True))
+
+@app.route('/open_ad_request', methods=['GET'])
+def open_ad_request():
+    user_id = session.get('user_id')
+    if user_id:
+        user = BloomData.query.get(user_id)
+        sdata = sponsorData.query.get(user_id)
+        campaigns = campaign.query.all()  # Adjust this to get the list of campaigns
+        influencers = influencerData.query.all()  # Adjust this to get the list of influencers
+        return render_template('sponsor_add_ad.html', user=user, sdata=sdata, campaigns=campaigns, influencers=influencers)
+
+@app.route('/create_ad_request', methods=['POST'])
+def create_ad_request():
+    campaign_id = request.form.get('campaign_id')
+    influencer_id = request.form.get('influencer_id')  # This should be the bloom_data_id of the influencer
+    messages = request.form.get('messages')
+    requirements = request.form.get('requirements')
+    payment_amount = request.form.get('payment_amount')
+
+    # Print the form data to the terminal
+    print(f"Campaign ID: {campaign_id}")
+    print(f"Influencer ID: {influencer_id}")
+    print(f"Messages: {messages}")
+    print(f"Requirements: {requirements}")
+    print(f"Payment Amount: {payment_amount}")
+    
+    # Process the form data (e.g., save to the database)
+    new_ad_request = AdRequest(
+        campaign_id=campaign_id,
+        influencer_id=influencer_id,
+        messages=messages,
+        requirements=requirements,
+        payment_amount=payment_amount,
+        status='Pending'
+    )
+    db.session.add(new_ad_request)
+    db.session.commit()
+
+    return redirect(url_for('open_ad_request'))
+
+@app.route('/ad_request_form/<int:campaign_id>/<int:influencer_id>', methods=['GET'])
+def ad_request_form(campaign_id, influencer_id):
+    # Fetch the campaign details
+    campaign = campaign.query.get(campaign_id)
+    if not campaign:
+        return "Campaign not found.", 404
+
+    # Pass the campaign and influencer details to the template
+    return render_template('ad_request_form.html', 
+                           campaign=campaign, 
+                           influencer_id=influencer_id)
+
+
+@app.route('/update_ad_request/<int:ad_request_id>', methods=['POST'])
+def update_ad_request(ad_request_id):
+    ad_request = AdRequest.query.get_or_404(ad_request_id)
+    
+    # Get form values
+    ad_request.messages = request.form.get('messages')
+    ad_request.requirements = request.form.get('requirements')
+
+    payment_amount_str = request.form.get('payment_amount')
+    try:
+        ad_request.payment_amount = float(payment_amount_str) if payment_amount_str else ad_request.payment_amount
+    except ValueError:
+        return "Invalid payment amount.", 400
+
+    ad_request.status = request.form.get('status', ad_request.status)  # Default to current status if not provided
+
+    db.session.commit()
+
+    return redirect(url_for('view_ad_requests'))
+@app.route('/view_ad_request', methods=['GET'])
+def view_ad_request():
+    user_id = session.get('user_id')
+    if user_id:
+        # Retrieve the sponsor data
+        sdata = sponsorData.query.get(user_id)
+        
+        # Retrieve all campaign requests related to the sponsor
+        campaign_requests = CampaignRequest.query.filter_by(sponsor_id=user_id).all()
+        campaign_ids = [cr.campaign_id for cr in campaign_requests]
+        
+        # Retrieve all ad requests for the campaigns belonging to this sponsor
+        ad_requests = AdRequest.query.filter(AdRequest.campaign_id.in_(campaign_ids)).all()
+        
+        return render_template('sponsor_add_existing.html', sdata=sdata, ad_requests=ad_requests)
+    else:
+        return redirect(url_for('login'))  # Redirect to login if not authenticated
 
 @app.route('/submit_campaign', methods=['POST'])
 def submit_campaign():
@@ -223,6 +326,36 @@ def register():
         
 
     return render_template("login.html")
+@app.route('/find_campaigns', methods=['GET', 'POST'])
+def find_campaigns():
+    title_query = request.form.get('title', '')
+    niche_query = request.form.get('niche', '')
+    deadline_query = request.form.get('deadline', '')
+
+    # Build the query
+    query = campaign.query
+
+    if title_query:
+        query = query.filter(campaign.title.ilike(f'%{title_query}%'))
+    if niche_query:
+        query = query.filter(campaign.niche.ilike(f'%{niche_query}%'))
+    if deadline_query:
+        try:
+            deadline_date = datetime.strptime(deadline_query, '%Y-%m-%d').date()
+            query = query.filter(campaign.deadline == deadline_date)
+        except ValueError:
+            return "Invalid date format. Please use YYYY-MM-DD.", 400
+
+    campaigns = query.all()
+
+    # Get user id from session
+    user_id = session.get('user_id')
+    
+    if user_id:
+        idata = influencerData.query.get(user_id)
+        return render_template('campaign_find.html', campaigns=campaigns, idata=idata)
+    else:
+        return redirect(url_for('login'))  # Redirect to login if not authenticated
 
 @app.route("/data", methods=['GET'])
 def data():
@@ -324,8 +457,32 @@ def add_campaigns():
 def influencer_reg():
     return render_template('influencer-reg.html')
 
+@app.route('/find_sponsors', methods=['GET', 'POST'])
+def find_sponsors_admin():
+    sponsors = db.session.query(sponsorData, BloomData.email).join(BloomData, sponsorData.bloom_data_id == BloomData.id).all()
+    return render_template('admin_find_sponsor.html', sponsors=sponsors)
+
 @app.route('/find_influencers', methods=['GET', 'POST'])
-def find_influencers():
+def find_influencers_admin():
+    influencers = db.session.query(influencerData, BloomData.email).join(BloomData, influencerData.bloom_data_id == BloomData.id).all()
+    return render_template('admin_find_influencer.html', influencers=influencers)
+
+@app.route('/toggle_flag_sponsor/<int:sponsor_id>', methods=['POST'])
+def toggle_flag_sponsor(sponsor_id):
+    sponsor = sponsorData.query.get_or_404(sponsor_id)
+    sponsor.flagged = not sponsor.flagged  # Toggle the flag status
+    db.session.commit()
+    return redirect(url_for('find_sponsors_admin'))
+
+@app.route('/toggle_flag_influencer/<int:influencer_id>', methods=['POST'])
+def toggle_flag_influencer(influencer_id):
+    influencer = influencerData.query.get_or_404(influencer_id)
+    influencer.flagged = not influencer.flagged  # Toggle the flag status
+    db.session.commit()
+    return redirect(url_for('find_influencers_admin'))
+
+@app.route('/sponsor_find_influencers', methods=['GET', 'POST'])
+def sponsor_find_influencers():
     user_id = session.get('user_id')
     niche_query = request.form.get('niche')
 
@@ -411,7 +568,7 @@ def admin_page():
     # Fetch all campaign requests
     requests = CampaignRequest.query.all()
     
-    return render_template('admin.html', 
+    return render_template('admin_profile.html', 
                            influencers=influencers, 
                            sponsors=sponsors, 
                            campaigns=campaigns, 
@@ -432,7 +589,15 @@ def edit_campaign(campaign_id):
 
 @app.route('/delete_campaign/<int:campaign_id>', methods=['POST'])
 def delete_campaign(campaign_id):
-    campaign_to_delete = campaign.query.get(campaign_id)
+    # Get the campaign to delete
+    campaign_to_delete = campaign.query.get_or_404(campaign_id)
+
+    # Check if there are any requests associated with this campaign
+    requests_to_delete = CampaignRequest.query.filter_by(campaign_id=campaign_id).all()
+    for request in requests_to_delete:
+        db.session.delete(request)
+
+    # Delete the campaign itself
     db.session.delete(campaign_to_delete)
     db.session.commit()
 
@@ -454,7 +619,7 @@ def request_influencer(influencer_id):
     db.session.add(new_request)
     db.session.commit()
 
-    return redirect(url_for('find_influencers'))
+    return redirect(url_for('sponsor_find_influencers'))
 # Home Page -------------------------------
 @app.route("/")
 def home():

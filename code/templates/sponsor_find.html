@@ -5,7 +5,7 @@
 {% block body %}
 <h1>Find Influencers</h1>
 
-<form method="POST" action="{{ url_for('find_influencers') }}">
+<form method="POST" action="{{ url_for('sponsor_find_influencers') }}">
     <div class="mb-3">
         <label for="niche" class="form-label">Search by Niche</label>
         <input type="text" class="form-control" id="niche" name="niche" value="{{ niche_query }}" placeholder="Enter niche">

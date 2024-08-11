@@ -4,6 +4,12 @@
 {% endblock title %}
 {% block body %}
 
+{% if sdata.flagged %}
+    <div class="alert alert-danger" role="alert">
+        Your account has been flagged.
+    </div>
+{% endif %}
+
 <table class="table table-striped-columns">
     Active Campaings 
     <thead>

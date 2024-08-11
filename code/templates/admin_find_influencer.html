@@ -1,0 +1,34 @@
+{% extends 'admin.html' %}
+{% block title %}
+    Admin
+{% endblock title %}
+
+{% block body %}
+<h2>Find Influencers</h2>
+<table class="table table-striped-columns">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for influencer, email in influencers %}
+            <tr>
+                <td>{{ influencer.name }}</td>
+                <td>{{ email }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('toggle_flag_influencer', influencer_id=influencer.bloom_data_id) }}">
+                        {% if influencer.flagged %}
+                            <button type="submit" class="btn btn-danger">Unflag</button>
+                        {% else %}
+                            <button type="submit" class="btn btn-warning">Flag</button>
+                        {% endif %}
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock body %}

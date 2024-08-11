@@ -1,0 +1,54 @@
+{% extends 'sponsor.html' %}
+
+{% block title %}
+    Ad Requests - {{ sdata.name }}
+{% endblock title %}
+
+{% block body %}
+<h1>Ad Requests</h1>
+
+<!-- Form to create a new ad request -->
+<div class="form-container">
+    <form action="{{ url_for('create_ad_request') }}" method="post">
+        <div class="form-group">
+            <label for="campaign">Select Campaign:</label>
+            <select name="campaign_id" id="campaign" required>
+                <option value="" {% if not campaign_id %}selected{% endif %}>None</option>
+                {% for campaign in campaigns %}
+                    <option value="{{ campaign.id }}" {% if campaign.id == selected_campaign_id %}selected{% endif %}>{{ campaign.title }} ({{ campaign.niche }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="influencer">Select Influencer:</label>
+            <select name="influencer_id" id="influencer" required>
+                <option value="" {% if not influencer_id %}selected{% endif %}>None</option>
+                {% for influencer in influencers %}
+                    <option value="{{ influencer.bloom_data_id }}" {% if influencer.bloom_data_id == selected_influencer_id %}selected{% endif %}>{{ influencer.name }}</option>
+                {% endfor %}
+            </select>
+            
+        </div>
+
+        <div class="form-group">
+            <label for="messages">Messages:</label>
+            <textarea name="messages" id="messages" placeholder="Messages" required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="requirements">Requirements:</label>
+            <textarea name="requirements" id="requirements" placeholder="Requirements" required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="payment_amount">Payment Amount:</label>
+            <input type="number" step="0.01" name="payment_amount" id="payment_amount" placeholder="Payment Amount" required>
+        </div>
+
+        <button type="submit" class="submit-button">Create Ad Request</button>
+    </form>
+</div>
+
+
+{% endblock body %}

@@ -1,0 +1,107 @@
+{% extends 'admin.html' %}
+{% block title %}
+    Admin
+{% endblock title %}
+{% block body %}
+
+<h3>Welcome Admin | Data Overview</h3>
+<div class="container">
+    <h1>Admin Dashboard</h1>
+    
+    <h2>Influencers</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Niche</th>
+                <th>Reach</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for influencer in influencers %}
+            <tr>
+                <td>{{ influencer.email }}</td>
+                <td>{{ influencer.name }}</td>
+                <td>{{ influencer.category }}</td>
+                <td>{{ influencer.niche }}</td>
+                <td>{{ influencer.reach }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Sponsors</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>Company Name</th>
+                <th>Industry</th>
+                <th>Budget</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sponsor in sponsors %}
+            <tr>
+                <td>{{ sponsor.email }}</td>
+                <td>{{ sponsor.company_name }}</td>
+                <td>{{ sponsor.industry }}</td>
+                <td>{{ sponsor.budget }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Campaigns</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Niche</th>
+                <th>Deadline</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for campaign in campaigns %}
+            <tr>
+                <td>{{ campaign.id }}</td>
+                <td>{{ campaign.title }}</td>
+                <td>{{ campaign.description }}</td>
+                <td>{{ campaign.niche }}</td>
+                <td>{{ campaign.deadline }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Campaign Requests</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Request ID</th>
+                <th>Campaign Title</th>
+                <th>Influencer Email</th>
+                <th>Sponsor Email</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in requests %}
+            <tr>
+                <td>{{ request.id }}</td>
+                <td>{{ request.campaign.title }}</td>
+                <td>{{ request.influencer.bloomdata.email }}</td>
+                <td>{{ request.sponsor.bloomdata.email }}</td>
+                <td>{{ request.status }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock body %}
+
+    
