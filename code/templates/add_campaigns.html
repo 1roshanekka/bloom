@@ -1,0 +1,114 @@
+{% extends 'sponsor.html' %}
+{% block title %}
+    {{sdata.name}}
+{% endblock title %}
+{% block body %}
+
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCampaignModal">
+    Add
+</button>
+
+<div class="modal fade" id="addCampaignModal" tabindex="-1" aria-labelledby="addCampaignModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addCampaignModalLabel">Add New Campaign</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ url_for('submit_campaign') }}">
+                    <div class="mb-3">
+                        <label for="campaignTitle" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="campaignTitle" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="campaignDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="campaignDescription" name="description" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="campaignNiche" class="form-label">Niche</label>
+                        <input type="text" class="form-control" id="campaignNiche" name="niche" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="campaignDeadline" class="form-label">Deadline</label>
+                        <input type="date" class="form-control" id="campaignDeadline" name="deadline" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save Campaign</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Niche</th>
+            <th>Deadline</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for campaign in campaigns %}
+        <tr>
+            <td>{{ campaign.title }}</td>
+            <td>{{ campaign.description }}</td>
+            <td>{{ campaign.niche }}</td>
+            <td>{{ campaign.deadline }}</td>
+            <td>
+                <!-- Edit Button -->
+                <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editCampaignModal{{ campaign.id }}">
+                    Edit
+                </button>
+                <!-- Edit Campaign Modal -->
+                <div class="modal fade" id="editCampaignModal{{ campaign.id }}" tabindex="-1" aria-labelledby="editCampaignModalLabel{{ campaign.id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editCampaignModalLabel{{ campaign.id }}">Edit Campaign</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form method="POST" action="{{ url_for('edit_campaign', campaign_id=campaign.id) }}">
+                                    <div class="mb-3">
+                                        <label for="campaignTitle{{ campaign.id }}" class="form-label">Title</label>
+                                        <input type="text" class="form-control" id="campaignTitle{{ campaign.id }}" name="title" value="{{ campaign.title }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="campaignDescription{{ campaign.id }}" class="form-label">Description</label>
+                                        <textarea class="form-control" id="campaignDescription{{ campaign.id }}" name="description" rows="3" required>{{ campaign.description }}</textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="campaignNiche{{ campaign.id }}" class="form-label">Niche</label>
+                                        <input type="text" class="form-control" id="campaignNiche{{ campaign.id }}" name="niche" value="{{ campaign.niche }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="campaignDeadline{{ campaign.id }}" class="form-label">Deadline</label>
+                                        <input type="date" class="form-control" id="campaignDeadline{{ campaign.id }}" name="deadline" value="{{ campaign.deadline }}" required>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Update Campaign</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Delete Button -->
+                <form method="POST" action="{{ url_for('delete_campaign', campaign_id=campaign.id) }}" style="display:inline;">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+        
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock body %}

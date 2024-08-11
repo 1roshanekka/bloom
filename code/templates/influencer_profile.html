@@ -1,0 +1,71 @@
+{% extends 'influencer.html' %}
+{% block title %}
+    {{ idata.name }}
+{% endblock title %}
+{% block body %}
+
+
+<h2>Your Data</h2>
+<table class="table table-striped-columns">
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Niche</th>
+            <th>Reach</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>{{ user.email }}</td>
+            <td>{{ idata.name }}</td>
+            <td>{{ idata.category }}</td>
+            <td>{{ idata.niche }}</td>
+            <td>{{ idata.reach }}</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>New Requests</h2>
+<table class="table table-striped-columns">
+    <thead>
+        <tr>
+            <th>Campaign Title</th>
+            <th>Company</th>
+            <th>Description</th>
+            <th>Deadline</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for request in requests %}
+        <tr>
+            <td>{{ request.campaign.title }}</td>
+            <td>{{ request.sponsor.company_name }}</td>
+            <td>{{ request.campaign.description }}</td>
+            <td>{{ request.campaign.deadline }}</td>
+            <td>
+                {% if request.status == 'Accepted' %}
+                    <span class="badge bg-success">Accepted</span>
+                {% elif request.status == 'Declined' %}
+                    <span class="badge bg-danger">Declined</span>
+                {% else %}
+                    <form method="POST" action="{{ url_for('accept_request', request_id=request.id) }}" style="display:inline;">
+                        <button type="submit" class="btn btn-success">Accept</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('decline_request', request_id=request.id) }}" style="display:inline;">
+                        <button type="submit" class="btn btn-danger">Decline</button>
+                    </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock body %}
+
+
+
+    

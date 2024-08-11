@@ -1,0 +1,75 @@
+{% extends 'sponsor.html' %}
+{% block title %}
+    {{ sdata.name }}
+{% endblock title %}
+{% block body %}
+<h1>Find Influencers</h1>
+
+<form method="POST" action="{{ url_for('find_influencers') }}">
+    <div class="mb-3">
+        <label for="niche" class="form-label">Search by Niche</label>
+        <input type="text" class="form-control" id="niche" name="niche" value="{{ niche_query }}" placeholder="Enter niche">
+    </div>
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
+<table class="table mt-4">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Niche</th>
+            <th>Reach</th>
+            <th>Contact</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for influencer in influencers %}
+        <tr>
+            <td>{{ influencer.name }}</td>
+            <td>{{ influencer.niche }}</td>
+            <td>{{ influencer.reach }}</td>  
+            <td>{{ influencer.bloomdata.email }}</td>  
+            <td>
+                <form method="POST" action="{{ url_for('request_influencer', influencer_id=influencer.bloom_data_id) }}">
+                    <div class="mb-3">
+                        <label for="campaign" class="form-label">Select Campaign</label>
+                        <select name="campaign_id" class="form-select" id="campaign">
+                            {% for campaign in campaigns %}
+                                <option value="{{ campaign.id }}">{{ campaign.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success">Request</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2>My Campaign Requests</h2>
+<table class="table table-striped-columns">
+    <thead>
+        <tr>
+            <th>Campaign Title</th>
+            <th>Influencer Name</th>
+            <th>Request Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for request in requests %}
+        <tr>
+            <td>{{ request.campaign.title }}</td>
+            <td>{{ request.influencer.name }}</td>
+            <td>{{ request.status }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if not influencers %}
+<p>No influencers found for the niche "{{ niche_query }}"</p>
+{% endif %}
+
+{% endblock body %}
